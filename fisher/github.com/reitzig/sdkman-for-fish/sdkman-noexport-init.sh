@@ -17,10 +17,6 @@
 #
 
 # set env vars if not set
-if [ -z "$SDKMAN_VERSION" ]; then
-	:
-fi
-
 if [ -z "$SDKMAN_CANDIDATES_API" ]; then
 	:
 fi
