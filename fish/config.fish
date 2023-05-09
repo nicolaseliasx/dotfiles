@@ -53,3 +53,6 @@ end
 alias fixm="xrandr --output HDMI-0 --mode 1920x1080 --rate 60.00"
 # Configura o SDKMAN
 #source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+#set -x LC_MESSAGES en_US.UTF-8
+#set -x LC_ALL C
