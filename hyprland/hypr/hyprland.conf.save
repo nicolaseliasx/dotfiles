@@ -65,7 +65,7 @@ decoration {
     rounding = 4
     blur = true
     blur_size = 10
-    blur_passes = 3
+    blur_passes = 1
     blur_new_optimizations = true
 
     blurls = lockscreen
@@ -163,8 +163,8 @@ windowrulev2 = move cursor -3% -105%,class:^(wofi)$
 windowrulev2 = noanim,class:^(wofi)$
 #windowrulev2 = float, nofullscreenrequest, move 0 0,class:^(flameshot)$
 
-wsbind=1,DP-3
-wsbind=9,HDMI-A-1
+#wsbind=1,DP-3
+#wsbind=9,HDMI-A-1
 
 # See https://wiki.hyprland.org/Configuring/Keywords/ for more
 $mainMod = SUPER
@@ -240,3 +240,4 @@ bind = $mainMod_CTRL, W, exec, swww img img/stylesss.jpg --transition-type cente
 source = ~/.config/hypr/media-binds.conf
 # source = ~/.config/hypr/rog-g15-strix-2021-binds.conf
 
+bind = XF86AudioPlayPause, 428u428u428u428u428u428u428u428u428u
