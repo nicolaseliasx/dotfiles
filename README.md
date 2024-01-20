@@ -1,2 +1,4 @@
 # dotfiles
-My dotfiles for fish shell hyprland and i3wm
+
+My dotfiles for bspwm
+run setup.sh
