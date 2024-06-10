@@ -1,45 +1,144 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
-#pgrep -x sxhkd > /dev/null || sxhkd &
+## General ---------------------------------------------------#
 
-#bspc monitor -d I II III IV V VI VII VIII IX X
+## Bspwm config directory
+BSPDIR="$HOME/.config/bspwm"
 
-#xrandr --output DP-4 --primary --mode 1920x1080 --rate 119.93 --pos 0x0
-#xrandr --output HDMI-0 --mode 1920x1080 --rate 60 --pos 1920x0
-xinput --set-prop 15 'Coordinate Transformation Matrix' 0.6 0 0 0 0.6 0 0 0 1
-#xrandr --output HDMI-0 --mode 1920x1080 --rate 60 --pos 1920x0 --rotate right
+## Export bspwm/bin dir to PATH
+export PATH="${PATH}:$BSPDIR/scripts"
 
-bspc monitor DP-4 -d 1 2 3 4 5 6 7 8
-bspc monitor HDMI-0 -d 9 S
+## Run java applications without issues
+export _JAVA_AWT_WM_NONREPARENTING=1
+#wmname LG3D
 
-bspc config normal_border_color "#666666"
-bspc config focused_border_color "#B2B2B2"
+## Current theme ---------------------------------------------#
 
+## Bspwm colors
+BSPWM_FBC='#5294E2'
+BSPWM_NBC='#1E2128'
+BSPWM_ABC='#C778DD'
+BSPWM_PFC='#98C379'
+
+## Bspwm appearance
+BSPWM_BORDER='2'
+BSPWM_GAP='4'
+BSPWM_SRATIO='0.50'
+
+## Configurations --------------------------------------------#
+
+## Manage Monitors and Workspaces
+default_workspaces() {
+    for monitor in $(xrandr -q | grep -w 'connected' | cut -d' ' -f1); do
+        bspc monitor "$monitor" -d '1' '2' '3' '4' '5' '6' '7' '8'
+    done
+}
+
+## Uncomment only one function according to your needs
+default_workspaces
+
+## Apply bspwm configurations
+bspc config border_width "$BSPWM_BORDER"
+bspc config window_gap "$BSPWM_GAP"
+bspc config split_ratio "$BSPWM_SRATIO"
+bspc config focused_border_color "$BSPWM_FBC"
+bspc config normal_border_color "$BSPWM_NBC"
+bspc config active_border_color "$BSPWM_ABC"
+bspc config presel_feedback_color "$BSPWM_PFC"
+bspc config borderless_monocle true
+bspc config gapless_monocle true
+bspc config paddingless_monocle true
+bspc config single_monocle false
 bspc config focus_follows_pointer true
+bspc config presel_feedback true
 
-sxhkd &
-$HOME/.config/polybar/launch.sh &
+## Manage all the unmanaged windows remaining from a previous session.
+bspc wm --adopt-orphans
 
-bspc config border_width         1
-bspc config window_gap           8
+## Window rules ----------------------------------------------#
 
-bspc config split_ratio          0.52
-bspc config borderless_monocle   true
-bspc config gapless_monocle      true
+## remove all rules first
+bspc rule -r *:*
 
-bspc rule -a thunar state=floating
-#bspc rule -a NomeDaClasse:slack do=S
-bspc rule -a Slack desktop='HDMI-0:^9' follow=on
+# ## 1 > web (always open web browser on workspace-1)
+# bspc rule -a firefox desktop='^1' follow=on focus=on
+# bspc rule -a chromium desktop='^1' follow=on focus=on
 
-bspc rule -a google-chrome-stable desktop='DP-4:^1' follow=on
+## 2 > code (always open editors on workspace-2)
+# declare -a code=(Geany code-oss)
+# for i in ${code[@]}; do
+#    bspc rule -a $i desktop='^2' follow=on focus=on; done
 
-setxkbmap us intl &
-picom -fb &
-slack &
-google-chrome-stable &
+# ## 3 > terminal (always open terminal on workspace-3)
+# bspc rule -a Alacritty desktop='^3' follow=on focus=on
+# bspc rule -a Xfce4-terminal desktop='^3' follow=on focus=on
+
+# ## 4 > files (always open file manager on workspace-4)
+# declare -a files=(Pcmanfm Thunar qBittorrent)
+# for i in ${files[@]}; do
+#    bspc rule -a $i desktop='^4' follow=on focus=on; done
+
+## 8 > system (always open system apps on workspace-8)
+# bspc rule -a 'VirtualBox Manager' desktop='^8' follow=on focus=on
+# bspc rule -a GParted desktop='^8' follow=on focus=on
+declare -a settings=(Lxappearance Lxtask Lxrandr Arandr \
+System-config-printer.py Pavucontrol Exo-helper-1 \
+Xfce4-power-manager-settings)
+for i in ${settings[@]}; do
+   bspc rule -a $i desktop='^8' state=floating follow=on focus=on; done
+
+## Always Floating Apps
+declare -a floating=(alacritty-float Pcmanfm Thunar Onboard Yad 'Firefox:Places' \
+Viewnior feh Nm-connection-editor calamares Calamares)
+for i in ${floating[@]}; do
+   bspc rule -a $i state=floating follow=on focus=on; done
+
+bspc rule -a Conky state=floating manage=off
+bspc rule -a stalonetray state=floating manage=off
+
+## Autostart -------------------------------------------------#
+
+# Kill if already running
+killall -9 xsettingsd sxhkd dunst ksuperkey xfce4-power-manager bspc
+
+# Lauch xsettingsd daemon
+xsettingsd --config="$BSPDIR"/xsettingsd &
+
+# polkit agent
+if [[ ! `pidof xfce-polkit` ]]; then
+    /usr/lib/xfce-polkit/xfce-polkit &
+fi
+
+# Lauch keybindings daemon
+sxhkd -c "$BSPDIR"/sxhkdrc &
+
+# Enable Super Keys For Menu
+ksuperkey -e 'Super_L=Alt_L|F1' &
+ksuperkey -e 'Super_R=Alt_L|F1' &
+
+# Enable power management
+xfce4-power-manager &
+
+# Fix cursor
 xsetroot -cursor_name left_ptr
-nitrogen --restore
+
+
+# Screen setup
+xrandr --output DP-4 --mode 1920x1080 --rate 143.98 --primary --output HDMI-0 --mode 1920x1080 --rotate right --right-of DP-4
 xset s off
 xset -dpms
-xrandr --output DP-4 --mode 1920x1080 --rate 120 --primary --output HDMI-0 --mode 1920x1080 --rotate right --right-of DP-4
-feh --bg-fill ~/.config/backgrounds/1156762.png  --bg-fill ~/.config/backgrounds/1156762.png 
+xsetroot -cursor_name left_ptr
+xinput set-prop "Logitech USB Receiver" "libinput Accel Speed" -0.7
+
+# Start mpd
+exec mpd &
+
+feh --no-fehbg --bg-fill '/home/ncls/.config/wps/wp.jpeg'
+# Start bspwm scripts
+bspbar
+bspcomp
+bspdunst
+bspfloat &
+
+slack &
+google-chrome-stable &
