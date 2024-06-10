@@ -21,6 +21,8 @@ makepkg -si --noconfirm
 print_message "Instalando pacotes necessários via yay..."
 yay -S --noconfirm visual-studio-code-bin google-chrome intellij-idea-community-edition slack-desktop dbeaver
 
+yay -S picom-ftlabs-git
+
 # Criar diretório bridge na home
 print_message "Criando diretório ~/bridge..."
 mkdir -p ~/bridge
