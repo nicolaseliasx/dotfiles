@@ -1,8 +1,0 @@
-* {
-    background:     #1A1A1A;  /* Cinza muito escuro */
-    background-alt: #2B2B2B;  /* Cinza escuro */
-    foreground:     #B0B0B0;  /* Cinza claro */
-    selected:       #4D4D4D;  /* Cinza médio */
-    active:         #5A5A5A;  /* Cinza */
-    urgent:         #3C3C3C;  /* Cinza */
-}
